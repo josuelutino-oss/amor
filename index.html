@@ -26,16 +26,16 @@
             height: 100%;
         }
 
-        /* --- 1. AUDIO FIJO (REPRODUCTOR LOCAL): Ajustado para ocupar menos espacio visual --- */
+        /* --- 1. AUDIO FIJO (REPRODUCTOR LOCAL): Ocupa menos espacio visual --- */
         #reproductor-spotify-contenedor {
             position: fixed; 
             top: 0; 
             left: 50%; 
             transform: translateX(-50%); 
             width: 350px; 
-            height: 35px; /* Altura reducida */
-            padding: 0; /* Padding eliminado */
-            background-color: transparent; /* Fondo transparente */
+            height: 35px; 
+            padding: 0; 
+            background-color: transparent; 
             z-index: 100; 
         }
 
@@ -45,10 +45,10 @@
             margin-top: 5px;
         }
 
-        /* --- 2. ESTILO DEL POEMA y ENCABEZADO: Movido más arriba --- */
+        /* --- 2. ESTILO DEL POEMA y ENCABEZADO: Reposicionado más arriba --- */
         #contenedor-poema {
             position: absolute;
-            top: 60px; /* Ajustado de 100px a 60px */
+            top: 60px; 
             left: 40px; 
             color: #880e4f; 
             max-width: 350px;
@@ -100,7 +100,7 @@
         #corazon {
             position: absolute;
             font-size: 140px; 
-            top: 50%; /* Ajustado de 55% a 50% */
+            top: 50%; 
             left: 50%;
             transform: translate(-50%, -50%);
             color: #e91e63; 
@@ -214,8 +214,7 @@
 
         <div id="pregunta-me-amas">¿Me amas?</div>
         <div class="botones-me-amas-contenedor">
-            <button id="boton-si" onclick="moverBotonSi(event)">Sí</button>
-            <button id="boton-no" onclick="iniciarExperiencia()">No</button> 
+            <button id="boton-si" onclick="manejarBotonSi(event)">Sí</button> <button id="boton-no" onclick="iniciarExperiencia()">No</button> 
         </div>
     </div>
 
@@ -266,7 +265,7 @@
             });
         }
 
-        // 2. FUNCIÓN DE INICIO DE EXPERIENCIA
+        // 2. FUNCIÓN DE INICIO DE EXPERIENCIA (Usada por el botón "No" y después por el "Sí")
         function iniciarExperiencia() {
             if (experienciaIniciada) return;
             experienciaIniciada = true;
@@ -276,13 +275,14 @@
             activarMusica(); 
             
             overlay.style.display = 'none';
-            iniciarLluviaCorazones(); 
+            
+            // Inicia la lluvia de corazones inmediatamente
+            crearCorazonCayendo(); 
+            intervaloCorazones = setInterval(crearCorazonCayendo, Math.random() * 300 + 300); 
         }
 
-        // 3. FUNCIÓN DE MOVER EL BOTÓN "SÍ"
-        function moverBotonSi(event) {
-            activarMusica(); 
-            
+        // 3. FUNCIÓN PARA MOVER EL BOTÓN "SÍ" (Lógica de movimiento puro)
+        function moverBotonSi() {
             const botonSi = document.getElementById('boton-si');
             
             const windowWidth = window.innerWidth;
@@ -298,9 +298,23 @@
             botonSi.style.top = `${newY}px`;
         }
         
+        // 4. NUEVA FUNCIÓN QUE MANEJA EL CLIC DEL BOTÓN "SÍ"
+        function manejarBotonSi(event) {
+            activarMusica(); 
+
+            // Si es la primera vez que se presiona "Sí", iniciar la experiencia y ocultar el overlay.
+            if (!experienciaIniciada) {
+                iniciarExperiencia();
+            } else {
+                // Si ya se inició, solo mover el botón para seguir el juego
+                moverBotonSi();
+            }
+        }
+        
         // --- LÓGICA JAVASCRIPT PARA LA LLUVIA DE CORAZONES ---
         const emojisCorazon = ['❤️', '🧡', '💛', '💜', '💙', '💚', '💘', '💖', '💗', '💞', '💕', '💓', '🏹']; 
         const coloresCorazon = ['#e91e63', '#ff9800', '#ffeb3b', '#9c27b0', '#2196f3', '#4caf50', '#f44336', '#ffc107', '#ff5722', '#673ab7'];
+        let intervaloCorazones;
 
         function crearCorazonCayendo() {
             const body = document.body;
@@ -312,7 +326,6 @@
             
             corazon.style.color = coloresCorazon[Math.floor(Math.random() * coloresCorazon.length)];
 
-            // Solución a corazón pegado y posicionamiento
             corazon.style.left = `${Math.random() * 100}vw`;
             corazon.style.top = `-10vh`; 
             
@@ -328,18 +341,6 @@
             setTimeout(() => {
                 corazon.remove();
             }, (duracion + 5) * 1000); 
-        }
-
-        let intervaloCorazones;
-
-        function iniciarLluviaCorazones() {
-            if (intervaloCorazones) {
-                clearInterval(intervaloCorazones);
-            }
-            // 🎯 INICIA INMEDIATAMENTE: Llama a la función una vez para que caiga un corazón al instante.
-            crearCorazonCayendo(); 
-            // Luego, establece el intervalo para la lluvia continua.
-            intervaloCorazones = setInterval(crearCorazonCayendo, Math.random() * 300 + 300); 
         }
 
         // --- LÓGICA JAVASCRIPT PARA EL CONTADOR ---
