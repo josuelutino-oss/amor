@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Momento - Música y Juego Separados</title>
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fce4ec; /* Rosa muy claro */
+            overflow: hidden; 
+            position: relative; 
+        }
+
+        /* Contenedor principal para posicionar elementos */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- 1. AUDIO FIJO (REPRODUCTOR LOCAL) --- */
+        #reproductor-spotify-contenedor {
+            position: fixed; 
+            top: 0; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 350px; 
+            height: 70px; 
+            padding: 5px 0; 
+            background-color: #fce4ec; 
+            z-index: 100; 
+        }
+
+        /* Estilo para que el reproductor de audio ocupe el ancho y se vea bien */
+        #reproductor-spotify-contenedor audio {
+            width: 100%;
+            height: 40px; 
+            margin-top: 10px;
+        }
+
+        /* --- 2. ESTILO DEL POEMA y ENCABEZADO --- */
+        #contenedor-poema {
+            position: absolute;
+            top: 100px; 
+            left: 40px; 
+            color: #880e4f; 
+            max-width: 350px;
+            line-height: 1.5;
+            z-index: 10;
+        }
+        
+        #encabezado-poema {
+            font-size: 1.5em; 
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #c2185b;
+        }
+
+        #poema {
+            font-size: 1.2em;
+        }
+
+        /* --- 3. ESTILO DEL CONTADOR --- */
+        #contenedor-contador { 
+            position: absolute;
+            bottom: 100px; 
+            left: 40px; 
+            color: #c2185b; 
+            font-weight: bold;
+            padding-right: 15px;
+            z-index: 10;
+        }
+        
+        #texto-intro { 
+            font-size: 0.9em;
+            text-decoration: none; 
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        #contador-dias { 
+            font-size: 1em; 
+            text-decoration: underline; 
+            display: inline-block;
+        }
+
+        .tiempo {
+            font-size: 1.1em;
+            color: #e91e63;
+        }
+
+        /* --- 4. CORAZÓN GIGANTE PALPITANDO --- */
+        #corazon {
+            position: absolute;
+            font-size: 140px; 
+            top: 55%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #e91e63; 
+            cursor: default; 
+            animation: palpitar 1.5s infinite;
+            z-index: 5;
+        }
+
+        @keyframes palpitar {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15); 
+                opacity: 0.9;
+            }
+        }
+        
+        /* --- 5. ESTILOS DEL OVERLAY DE INICIO (JUEGO "ME AMAS?") --- */
+        #overlay-inicio {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fce4ec; 
+            z-index: 200; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        /* Capa invisible para atrapar cualquier clic y no interferir con los botones */
+        #click-catcher {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 199; 
+            cursor: pointer;
+        }
+
+        #pregunta-me-amas {
+            color: #880e4f;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: bold;
+            z-index: 201;
+        }
+
+        .botones-me-amas-contenedor {
+            display: flex;
+            gap: 40px; 
+            z-index: 201;
+        }
+
+        #boton-si, #boton-no {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            background-color: #e91e63; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+            position: relative; 
+            z-index: 202; 
+        }
+
+        #boton-si:hover, #boton-no:hover {
+            background-color: #c2185b; 
+        }
+
+        /* --- 6. ESTILOS DE LA LLUVIA DE CORAZONES --- */
+        .falling-heart {
+            position: absolute;
+            font-size: 15px; 
+            animation: fall linear infinite;
+            pointer-events: none; 
+            z-index: 1; 
+            opacity: 0.8;
+            text-shadow: 0px 0px 3px rgba(0,0,0,0.1); 
+        }
+
+        /* Ajuste para que los corazones inicien arriba del todo */
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) translateX(0px) rotate(0deg); 
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) translateX(var(--end-x)) rotate(var(--end-rotate));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="reproductor-spotify-contenedor">
+        <audio id="audio-player" loop></audio>
+    </div>
+
+    <div id="overlay-inicio">
+        <div id="click-catcher" onclick="activarMusica(event)"></div>
+
+        <div id="pregunta-me-amas">¿Me amas?</div>
+        <div class="botones-me-amas-contenedor">
+            <button id="boton-si" onclick="moverBotonSi(event)">Sí</button>
+            <button id="boton-no" onclick="iniciarExperiencia()">No</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div id="contenedor-poema">
+            <div id="encabezado-poema">BUENOS DIAS AMOR</div>
+            <div id="poema">
+                Desde que te conocí, los días vuelan,<br>
+                pero cada instante es el mejor.<br>
+                Mi lugar favorito es donde tú estés,<br>
+                Hoy, mañana y siempre.
+            </div>
+        </div>
+
+        <div id="corazon">
+            ❤️
+        </div>
+
+        <div id="contenedor-contador">
+            <span id="texto-intro">Mi amor por ti comenzó hace...</span>
+            
+            <div id="contador-dias">
+                <span class="tiempo">0</span> días <span class="tiempo">00</span> horas <span class="tiempo">00</span> minutos <span class="tiempo">00</span> segundos
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        // Inicializa el elemento de audio con el src
+        const audio = document.getElementById('audio-player');
+        audio.src = "Amtrak.mp3"; 
+
+        let musicaActivada = false;
+        let experienciaIniciada = false;
+
+        // 🎯 FUNCIÓN NUEVA: SOLO ACTIVA LA MÚSICA CON CUALQUIER CLIC
+        function activarMusica(event) {
+            if (musicaActivada) return;
+            
+            audio.play().then(() => {
+                musicaActivada = true;
+                // Opcional: Puedes dar una señal visual si quieres
+            }).catch(error => {
+                console.error("Error al intentar reproducir el audio:", error);
+                // La música no se activa, pero no se rompe el juego
+            });
+        }
+
+        // 🎯 FUNCIÓN DE INICIO COMPLETO: SOLO SE ACTIVA CON BOTÓN "NO"
+        function iniciarExperiencia() {
+            if (experienciaIniciada) return;
+            experienciaIniciada = true;
+            
+            const overlay = document.getElementById('overlay-inicio');
+            
+            // Asegurar que la música se active si no lo hizo antes
+            activarMusica(); 
+
+            // Ocultar el overlay y empezar la lluvia
+            overlay.style.display = 'none';
+            iniciarLluviaCorazones(); 
+        }
+
+        // 🎯 FUNCIÓN DE JUEGO: MUEVE EL BOTÓN "SÍ"
+        function moverBotonSi(event) {
+            // Detiene la propagación para que el clic no inicie la música (opcional) o la experiencia
+            event.stopPropagation(); 
+            
+            const botonSi = document.getElementById('boton-si');
+            
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const botonWidth = botonSi.offsetWidth;
+            const botonHeight = botonSi.offsetHeight;
+            
+            const newX = Math.random() * (windowWidth - botonWidth - 40) + 20; 
+            const newY = Math.random() * (windowHeight - botonHeight - 40) + 20; 
+
+            botonSi.style.position = 'absolute'; 
+            botonSi.style.left = `${newX}px`;
+            botonSi.style.top = `${newY}px`;
+        }
+        
+        // --- LÓGICA JAVASCRIPT PARA LA LLUVIA DE CORAZONES (sin cambios funcionales) ---
+        const emojisCorazon = ['❤️', '🧡', '💛', '💜', '💙', '💚', '💘', '💖', '💗', '💞', '💕', '💓', '🏹']; 
+        const coloresCorazon = ['#e91e63', '#ff9800', '#ffeb3b', '#9c27b0', '#2196f3', '#4caf50', '#f44336', '#ffc107', '#ff5722', '#673ab7'];
+
+        function crearCorazonCayendo() {
+            const body = document.body;
+            const corazon = document.createElement('span');
+            corazon.classList.add('falling-heart');
+
+            const emojiIndex = Math.floor(Math.random() * emojisCorazon.length);
+            corazon.innerHTML = emojisCorazon[emojiIndex];
+            
+            corazon.style.color = coloresCorazon[Math.floor(Math.random() * coloresCorazon.length)];
+
+            corazon.style.left = `${Math.random() * 100}vw`;
+            
+            const duracion = Math.random() * 8 + 5; 
+            corazon.style.animationDuration = `${duracion}s`;
+            corazon.style.animationDelay = `${Math.random() * 5}s`;
+
+            corazon.style.setProperty('--end-x', `${Math.random() * 40 - 20}px`); 
+            corazon.style.setProperty('--end-rotate', `${Math.random() * 360}deg`);
+
+            body.appendChild(corazon);
+
+            setTimeout(() => {
+                corazon.remove();
+            }, (duracion + 5) * 1000); 
+        }
+
+        let intervaloCorazones;
+
+        function iniciarLluviaCorazones() {
+            if (intervaloCorazones) {
+                clearInterval(intervaloCorazones);
+            }
+            intervaloCorazones = setInterval(crearCorazonCayendo, Math.random() * 300 + 300); 
+        }
+
+        // --- LÓGICA JAVASCRIPT PARA EL CONTADOR (sin cambios funcionales) ---
+        const fechaInicio = new Date(2025, 0, 14, 15, 43, 0); 
+        const elementoContador = document.getElementById('contador-dias');
+
+        const segundosEnUnDia = 60 * 60 * 24;
+        const segundosEnUnaHora = 60 * 60;
+        const segundosEnUnMinuto = 60;
+
+        function actualizarContadorDetallado() {
+            const ahora = new Date();
+            const diferenciaMilisegundos = ahora - fechaInicio; 
+            
+            if (diferenciaMilisegundos < 0) {
+                const tiempoRestante = fechaInicio - ahora;
+                const totalSegundosRestantes = Math.floor(tiempoRestante / 1000);
+                
+                const dias = Math.floor(totalSegundosRestantes / segundosEnUnDia);
+                const horas = Math.floor((totalSegundosRestantes % segundosEnUnDia) / segundosEnUnaHora);
+                const minutos = Math.floor((totalSegundosRestantes % segundosEnUnaHora) / segundosEnUnMinuto);
+                const segundos = totalSegundosRestantes % segundosEnUnMinuto;
+                
+                elementoContador.innerHTML = `
+                    **¡Faltan** <span class="tiempo">${dias}</span> días <span class="tiempo">${horas.toString().padStart(2, '0')}</span> horas <span class="tiempo">${minutos.toString().padStart(2, '0')}</span> minutos <span class="tiempo">${segundos.toString().padStart(2, '0')}</span> segundos **para nuestro inicio!**
+                `;
+
+            } else {
+                let totalSegundosTranscurridos = Math.floor(diferenciaMilisegundos / 1000);
+                
+                const dias = Math.floor(totalSegundosTranscurridos / segundosEnUnDia) + 1;
+                
+                let segundosResiduales = totalSegundosTranscurridos % segundosEnUnDia; 
+                
+                const horas = Math.floor(segundosResiduales / segundosEnUnaHora);
+                
+                segundosResiduales %= segundosEnUnaHora; 
+                
+                const minutos = Math.floor(segundosResiduales / segundosEnUnMinuto);
+                
+                const segundos = segundosResiduales % segundosEnUnMinuto; 
+                
+                elementoContador.innerHTML = `
+                    <span class="tiempo">${dias}</span> días <span class="tiempo">${horas.toString().padStart(2, '0')}</span> horas <span class="tiempo">${minutos.toString().padStart(2, '0')}</span> minutos <span class="tiempo">${segundos.toString().padStart(2, '0')}</span> segundos
+                `;
+            }
+        }
+
+        actualizarContadorDetallado();
+        setInterval(actualizarContadorDetallado, 1000); 
+    </script>
+</body>
+</html>
+
+
