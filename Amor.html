@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuestro Momento - Música y Juego Separados</title>
+    <title>Para Mi Amor - Un Regalo</title>
     <style>
         /* --- ESTILOS GENERALES --- */
         body {
@@ -14,7 +14,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #fce4ec; /* Rosa muy claro */
+            background-color: #fce4ec; 
             overflow: hidden; 
             position: relative; 
         }
@@ -171,7 +171,6 @@
             border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
             position: relative; 
             z-index: 202; 
         }
@@ -191,7 +190,6 @@
             text-shadow: 0px 0px 3px rgba(0,0,0,0.1); 
         }
 
-        /* Ajuste para que los corazones inicien arriba del todo */
         @keyframes fall {
             0% {
                 transform: translateY(-100vh) translateX(0px) rotate(0deg); 
@@ -219,7 +217,7 @@
         <div id="pregunta-me-amas">¿Me amas?</div>
         <div class="botones-me-amas-contenedor">
             <button id="boton-si" onclick="moverBotonSi(event)">Sí</button>
-            <button id="boton-no" onclick="iniciarExperiencia()">No</button>
+            <button id="boton-no" onclick="iniciarExperiencia()">No</button> 
         </div>
     </div>
 
@@ -250,45 +248,42 @@
     </div>
 
     <script>
-        // Inicializa el elemento de audio con el src
+        // 🎯 RUTA CORREGIDA FINAL: Busca el archivo "Amtrak.mp3" que está en el mismo repositorio de GitHub
+        const URL_DIRECTA_DEL_MP3 = "Amtrak.mp3"; 
+
         const audio = document.getElementById('audio-player');
-        audio.src = "Amtrak.mp3"; 
+        audio.src = URL_DIRECTA_DEL_MP3; // <--- Usa la propiedad 'src' corregida
 
         let musicaActivada = false;
         let experienciaIniciada = false;
 
-        // 🎯 FUNCIÓN NUEVA: SOLO ACTIVA LA MÚSICA CON CUALQUIER CLIC
         function activarMusica(event) {
             if (musicaActivada) return;
             
+            // Intenta reproducir el audio. Esto es necesario porque los navegadores bloquean la reproducción sin interacción del usuario.
             audio.play().then(() => {
                 musicaActivada = true;
-                // Opcional: Puedes dar una señal visual si quieres
             }).catch(error => {
+                // No se pudo reproducir (generalmente en móviles, se requiere más interacción)
                 console.error("Error al intentar reproducir el audio:", error);
-                // La música no se activa, pero no se rompe el juego
             });
         }
 
-        // 🎯 FUNCIÓN DE INICIO COMPLETO: SOLO SE ACTIVA CON BOTÓN "NO"
         function iniciarExperiencia() {
             if (experienciaIniciada) return;
             experienciaIniciada = true;
             
             const overlay = document.getElementById('overlay-inicio');
             
-            // Asegurar que la música se active si no lo hizo antes
-            activarMusica(); 
-
-            // Ocultar el overlay y empezar la lluvia
+            activarMusica(); // Intenta activar la música
+            
             overlay.style.display = 'none';
             iniciarLluviaCorazones(); 
         }
 
-        // 🎯 FUNCIÓN DE JUEGO: MUEVE EL BOTÓN "SÍ"
+        // Función que hace que el botón "Sí" se mueva
         function moverBotonSi(event) {
-            // Detiene la propagación para que el clic no inicie la música (opcional) o la experiencia
-            event.stopPropagation(); 
+            event.stopPropagation(); // Evita que se active el audio de fondo al tocar el botón
             
             const botonSi = document.getElementById('boton-si');
             
@@ -297,6 +292,7 @@
             const botonWidth = botonSi.offsetWidth;
             const botonHeight = botonSi.offsetHeight;
             
+            // Calcula una nueva posición aleatoria dentro de la ventana
             const newX = Math.random() * (windowWidth - botonWidth - 40) + 20; 
             const newY = Math.random() * (windowHeight - botonHeight - 40) + 20; 
 
@@ -305,7 +301,7 @@
             botonSi.style.top = `${newY}px`;
         }
         
-        // --- LÓGICA JAVASCRIPT PARA LA LLUVIA DE CORAZONES (sin cambios funcionales) ---
+        // --- LÓGICA JAVASCRIPT PARA LA LLUVIA DE CORAZONES ---
         const emojisCorazon = ['❤️', '🧡', '💛', '💜', '💙', '💚', '💘', '💖', '💗', '💞', '💕', '💓', '🏹']; 
         const coloresCorazon = ['#e91e63', '#ff9800', '#ffeb3b', '#9c27b0', '#2196f3', '#4caf50', '#f44336', '#ffc107', '#ff5722', '#673ab7'];
 
@@ -341,11 +337,14 @@
             if (intervaloCorazones) {
                 clearInterval(intervaloCorazones);
             }
+            // Crea un corazón cada 300-600 milisegundos
             intervaloCorazones = setInterval(crearCorazonCayendo, Math.random() * 300 + 300); 
         }
 
-        // --- LÓGICA JAVASCRIPT PARA EL CONTADOR (sin cambios funcionales) ---
+        // --- LÓGICA JAVASCRIPT PARA EL CONTADOR ---
+        // 🎯 AJUSTA AQUÍ TU FECHA DE INICIO DE RELACIÓN (Año, Mes-1, Día, Hora, Minuto, Segundo)
         const fechaInicio = new Date(2025, 0, 14, 15, 43, 0); 
+        
         const elementoContador = document.getElementById('contador-dias');
 
         const segundosEnUnDia = 60 * 60 * 24;
@@ -357,6 +356,7 @@
             const diferenciaMilisegundos = ahora - fechaInicio; 
             
             if (diferenciaMilisegundos < 0) {
+                // Si la fecha de inicio es en el futuro (contador hacia atrás)
                 const tiempoRestante = fechaInicio - ahora;
                 const totalSegundosRestantes = Math.floor(tiempoRestante / 1000);
                 
@@ -370,9 +370,10 @@
                 `;
 
             } else {
+                // Si la fecha de inicio es en el pasado (contador hacia adelante)
                 let totalSegundosTranscurridos = Math.floor(diferenciaMilisegundos / 1000);
                 
-                const dias = Math.floor(totalSegundosTranscurridos / segundosEnUnDia) + 1;
+                const dias = Math.floor(totalSegundosTranscurridos / segundosEnUnDia) + 1; // Suma 1 para contar el día actual
                 
                 let segundosResiduales = totalSegundosTranscurridos % segundosEnUnDia; 
                 
@@ -395,5 +396,12 @@
     </script>
 </body>
 </html>
+
+  
+       
+       
+            
+        
+       
 
 
