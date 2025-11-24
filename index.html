@@ -10,7 +10,7 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            height: 100vh; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,30 +26,29 @@
             height: 100%;
         }
 
-        /* --- 1. AUDIO FIJO (REPRODUCTOR LOCAL) --- */
+        /* --- 1. AUDIO FIJO (REPRODUCTOR LOCAL): Ajustado para ocupar menos espacio visual --- */
         #reproductor-spotify-contenedor {
             position: fixed; 
             top: 0; 
             left: 50%; 
             transform: translateX(-50%); 
             width: 350px; 
-            height: 70px; 
-            padding: 5px 0; 
-            background-color: #fce4ec; 
+            height: 35px; /* Altura reducida */
+            padding: 0; /* Padding eliminado */
+            background-color: transparent; /* Fondo transparente */
             z-index: 100; 
         }
 
-        /* Estilo para que el reproductor de audio ocupe el ancho y se vea bien */
         #reproductor-spotify-contenedor audio {
             width: 100%;
-            height: 40px; 
-            margin-top: 10px;
+            height: 30px; 
+            margin-top: 5px;
         }
 
-        /* --- 2. ESTILO DEL POEMA y ENCABEZADO --- */
+        /* --- 2. ESTILO DEL POEMA y ENCABEZADO: Movido más arriba --- */
         #contenedor-poema {
             position: absolute;
-            top: 100px; 
+            top: 60px; /* Ajustado de 100px a 60px */
             left: 40px; 
             color: #880e4f; 
             max-width: 350px;
@@ -97,11 +96,11 @@
             color: #e91e63;
         }
 
-        /* --- 4. CORAZÓN GIGANTE PALPITANDO --- */
+        /* --- 4. CORAZÓN GIGANTE PALPITANDO: Centrado verticalmente --- */
         #corazon {
             position: absolute;
             font-size: 140px; 
-            top: 55%; 
+            top: 50%; /* Ajustado de 55% a 50% */
             left: 50%;
             transform: translate(-50%, -50%);
             color: #e91e63; 
@@ -136,7 +135,6 @@
             flex-direction: column;
         }
         
-        /* Capa invisible para atrapar cualquier clic y no interferir con los botones */
         #click-catcher {
             position: absolute;
             top: 0;
@@ -248,42 +246,42 @@
     </div>
 
     <script>
-        // 🎯 RUTA CORREGIDA FINAL: Busca el archivo "Amtrak.mp3" que está en el mismo repositorio de GitHub
+        // 🎯 RUTA CORREGIDA FINAL
         const URL_DIRECTA_DEL_MP3 = "Amtrak.mp3"; 
 
         const audio = document.getElementById('audio-player');
-        audio.src = URL_DIRECTA_DEL_MP3; // <--- Usa la propiedad 'src' corregida
+        audio.src = URL_DIRECTA_DEL_MP3; 
 
         let musicaActivada = false;
         let experienciaIniciada = false;
 
+        // 1. FUNCIÓN DE ACTIVACIÓN DE MÚSICA
         function activarMusica(event) {
             if (musicaActivada) return;
             
-            // Intenta reproducir el audio. Esto es necesario porque los navegadores bloquean la reproducción sin interacción del usuario.
             audio.play().then(() => {
                 musicaActivada = true;
             }).catch(error => {
-                // No se pudo reproducir (generalmente en móviles, se requiere más interacción)
                 console.error("Error al intentar reproducir el audio:", error);
             });
         }
 
+        // 2. FUNCIÓN DE INICIO DE EXPERIENCIA
         function iniciarExperiencia() {
             if (experienciaIniciada) return;
             experienciaIniciada = true;
             
             const overlay = document.getElementById('overlay-inicio');
             
-            activarMusica(); // Intenta activar la música
+            activarMusica(); 
             
             overlay.style.display = 'none';
             iniciarLluviaCorazones(); 
         }
 
-        // Función que hace que el botón "Sí" se mueva
+        // 3. FUNCIÓN DE MOVER EL BOTÓN "SÍ"
         function moverBotonSi(event) {
-            event.stopPropagation(); // Evita que se active el audio de fondo al tocar el botón
+            activarMusica(); 
             
             const botonSi = document.getElementById('boton-si');
             
@@ -292,7 +290,6 @@
             const botonWidth = botonSi.offsetWidth;
             const botonHeight = botonSi.offsetHeight;
             
-            // Calcula una nueva posición aleatoria dentro de la ventana
             const newX = Math.random() * (windowWidth - botonWidth - 40) + 20; 
             const newY = Math.random() * (windowHeight - botonHeight - 40) + 20; 
 
@@ -315,7 +312,9 @@
             
             corazon.style.color = coloresCorazon[Math.floor(Math.random() * coloresCorazon.length)];
 
+            // Solución a corazón pegado y posicionamiento
             corazon.style.left = `${Math.random() * 100}vw`;
+            corazon.style.top = `-10vh`; 
             
             const duracion = Math.random() * 8 + 5; 
             corazon.style.animationDuration = `${duracion}s`;
@@ -337,7 +336,9 @@
             if (intervaloCorazones) {
                 clearInterval(intervaloCorazones);
             }
-            // Crea un corazón cada 300-600 milisegundos
+            // 🎯 INICIA INMEDIATAMENTE: Llama a la función una vez para que caiga un corazón al instante.
+            crearCorazonCayendo(); 
+            // Luego, establece el intervalo para la lluvia continua.
             intervaloCorazones = setInterval(crearCorazonCayendo, Math.random() * 300 + 300); 
         }
 
@@ -356,7 +357,7 @@
             const diferenciaMilisegundos = ahora - fechaInicio; 
             
             if (diferenciaMilisegundos < 0) {
-                // Si la fecha de inicio es en el futuro (contador hacia atrás)
+                // Lógica de cuenta regresiva
                 const tiempoRestante = fechaInicio - ahora;
                 const totalSegundosRestantes = Math.floor(tiempoRestante / 1000);
                 
@@ -370,11 +371,10 @@
                 `;
 
             } else {
-                // Si la fecha de inicio es en el pasado (contador hacia adelante)
+                // Lógica de cuenta hacia adelante
                 let totalSegundosTranscurridos = Math.floor(diferenciaMilisegundos / 1000);
                 
-                const dias = Math.floor(totalSegundosTranscurridos / segundosEnUnDia) + 1; // Suma 1 para contar el día actual
-                
+                const dias = Math.floor(totalSegundosTranscurridos / segundosEnUnDia);
                 let segundosResiduales = totalSegundosTranscurridos % segundosEnUnDia; 
                 
                 const horas = Math.floor(segundosResiduales / segundosEnUnaHora);
@@ -396,12 +396,3 @@
     </script>
 </body>
 </html>
-
-  
-       
-       
-            
-        
-       
-
-
